@@ -48,11 +48,15 @@ const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 const LINE = 'wanderage: the blank moment of standing in a room, having forgotten why you came in.';
 
 // Guard the gate: entry.txt must be UTF-8 text of 1 to 140 characters, not
-// only white space. Fail loudly here rather than shipping an entry the
-// sealed scorer would refuse.
+// only white space, and the brief requires one clear line, so a newline
+// inside the text would break the format even if the length passed. Fail
+// loudly here rather than shipping an entry the sealed scorer would refuse.
 const codePoints = [...LINE].length;
 if (codePoints < 1 || codePoints > 140 || LINE.trim().length === 0) {
   throw new Error(`line is ${codePoints} characters, outside the 1-140 gate`);
+}
+if (LINE.includes('\n')) {
+  throw new Error('line must be a single line, no newline inside the text');
 }
 
 writeFileSync(join(OUTPUT_DIR, 'entry.txt'), LINE);
